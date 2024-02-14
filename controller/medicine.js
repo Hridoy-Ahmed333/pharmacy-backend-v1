@@ -59,6 +59,7 @@ exports.getAllMedicine = async (req, res) => {
 //Getting one Document
 exports.GetOneMedicine = async (req, res) => {
   const id = req.params.id;
+  console.log(id);
   try {
     const medicine = await Medicine.findById(id);
     res.json(medicine);
@@ -84,24 +85,13 @@ exports.replaceMedicine = async (req, res) => {
 
 //Update operation on document
 exports.updateMedicine = async (req, res) => {
-  console.log("Update Req is:", req.body, req.file);
+  console.log("Update Req is");
   const id = req.params.id;
 
-  if (req.file) {
-    const medicine = await Medicine.findOneAndUpdate(
-      { _id: id },
-      { ...req.body, image: req.file.filename },
-      {
-        new: true,
-      }
-    );
-    res.json(medicine);
-  } else {
-    const medicine = await Medicine.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-    });
-    res.json(medicine);
-  }
+  const medicine = await Medicine.findOneAndUpdate({ _id: id }, req.body, {
+    new: true,
+  });
+  res.json(medicine);
 };
 
 //Deleting Document

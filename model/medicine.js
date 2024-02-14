@@ -31,7 +31,7 @@ const medicineSchema = new Schema({
   rating: {
     type: Number,
     min: [0, "wrong min ratting"],
-    max: [5, "wrong max ratting"],
+    max: [10, "wrong max ratting"],
   },
   totalRating: Number,
   totalItemBuy: Number, ////////////
