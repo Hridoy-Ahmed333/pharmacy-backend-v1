@@ -54,6 +54,7 @@ medicineRouter
   )
   .get("/", medicineController.getAllMedicine)
   .get("/:id", medicineController.GetOneMedicine)
+
   .put(
     "/:id",
     upload.single("image"),
@@ -66,6 +67,7 @@ medicineRouter
     multerErrorHandler,
     medicineController.updateMedicine
   )
+  .patch("/star/:id", medicineController.updateStar)
   .delete("/:id", medicineController.deleteMedicine)
   .post("/:id/comments", commentController.addComment)
   .get(

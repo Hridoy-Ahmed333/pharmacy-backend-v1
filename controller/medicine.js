@@ -27,6 +27,8 @@ exports.createMedicine = async (req, res) => {
         image: req.file.filename,
         totalItemBuy: 0,
         totalItemSold: 0,
+        totalBuyMone: 0,
+        totalSellMoney: 0,
       });
       const savedMedicine = await medicine.save();
       res.json({
@@ -85,6 +87,28 @@ exports.replaceMedicine = async (req, res) => {
 
 //Update operation on document
 exports.updateMedicine = async (req, res) => {
+  const id = req.params.id;
+  console.log(req.body);
+
+  if (req.file) {
+    const medicine = await Medicine.findOneAndUpdate(
+      { _id: id },
+      { ...req.body, image: req.file.filename },
+      {
+        new: true,
+      }
+    );
+    res.json(medicine);
+  } else {
+    const medicine = await Medicine.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+    });
+
+    res.json(medicine);
+  }
+};
+
+exports.updateStar = async (req, res) => {
   console.log("Update Req is");
   const id = req.params.id;
 

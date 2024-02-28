@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const categoryRouter = require("./routes/category"); // Import the cors package
 const medicineRouter = require("./routes/medicine");
 const searchRouter = require("./routes/search");
+const supplyRouter = require("./routes/supply");
 const server = express();
 
 const path = require("path");
@@ -25,6 +26,7 @@ server.use(express.static("public"));
 server.use("/category", categoryRouter.categoryRouter);
 server.use("/medicine", medicineRouter.medicineRouter);
 server.use("/search", searchRouter.searchRouter);
+server.use("/supply", supplyRouter.supplyRouter);
 
 server.listen(8080, () => {
   console.log("Server started");

@@ -35,6 +35,8 @@ const medicineSchema = new Schema({
   },
   totalRating: Number,
   totalItemBuy: Number, ////////////
+  totalBuyMone: Number,
+  totalSellMoney: Number,
   totalItemSold: Number, ///////////
   stock: Number,
   brand: { type: String, required: true },
