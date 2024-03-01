@@ -57,3 +57,26 @@ exports.getSuppply = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+exports.updateSupply = async (req, res) => {
+  const id = req.body._id;
+  console.log(req.body);
+  try {
+    const supply = await Supply.findById(id);
+    await Supply.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+    });
+    const product = await Medicine.findById(supply.productId);
+    const money = product.totalBuyMone + supply.totalCost;
+    const item = product.totalItemBuy + supply.amount;
+    const stock = product.stock + supply.amount;
+    const updateMed = { totalBuyMone: money, totalItemBuy: item, stock: stock };
+    await Medicine.findOneAndUpdate({ _id: supply.productId }, updateMed, {
+      new: true,
+    });
+    res.json({ message: "ok" });
+  } catch (error) {
+    console.log(error);
+    res.json({ message: "Error" });
+  }
+};
