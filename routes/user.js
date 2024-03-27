@@ -5,7 +5,7 @@ router
   .get("/", userController.getAllUser)
   .get("/:id", userController.GetOneUser)
   .put("/:id", userController.replaceUser)
-  .patch("/:id", userController.updateUser)
-  .delete("/:id", userController.deleteUser);
-
+  // .patch("/:id", userController.updateUser)
+  .delete("/:id", userController.deleteUser)
+  .patch("/getUser", userController.GetOneUserByToken);
 exports.router = router;

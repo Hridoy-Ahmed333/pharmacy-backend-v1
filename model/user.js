@@ -6,8 +6,9 @@ const buySchema = new Schema({
   name: String,
   isRated: Boolean,
   rating: Number,
-  commentId: String,
-  // date: Date,
+  total: Number,
+  commentId: [String],
+  date: Date,
 });
 
 const orderSchema = new Schema({

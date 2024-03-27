@@ -9,7 +9,11 @@ const searchRouter = require("./routes/search");
 const supplyRouter = require("./routes/supply");
 const userRouter = require("./routes/user");
 const authRouter = require("./routes/auth");
+const orderRouter = require("./routes/order");
 const paymentRouter = require("./routes/payment");
+const model = require("./model/user");
+const User = model.User;
+
 const server = express();
 
 const path = require("path");
@@ -55,7 +59,9 @@ server.use("/search", searchRouter.searchRouter);
 server.use("/supply", supplyRouter.supplyRouter);
 server.use("/auth", authRouter.router);
 server.use("/users", auth, userRouter.router);
-server.use("/payment", paymentRouter.paymentRouter);
+server.use("/payment", auth, paymentRouter.paymentRouter);
+server.use("/orders", auth, orderRouter.orderRouter);
+
 server.listen(8080, () => {
   console.log("Server started");
 });
