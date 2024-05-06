@@ -16,8 +16,8 @@ exports.createUser = async (req, res) => {
       if (!user.role) {
         user.role = "user";
       }
-      user.totalItemBuy = 0;
-      (user.image = req.file.filename), (user.totalBuyMoney = 0);
+
+      user.image = req.file.filename;
       const output = await user.save();
       console.log(output);
       res.status(201).json(output);

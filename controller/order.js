@@ -1,58 +1,64 @@
 const mongoose = require("mongoose");
 const model = require("../model/order");
-const model3 = require("../model/medicine");
+const model3 = require("../model/property");
 const model2 = require("../model/user");
 const Order = model.Order;
-const Medicine = model3.Medicine;
+const Property = model3.Property;
 const User = model2.User;
 
 exports.createOrder = async (req, res) => {
-  const { order, user: token, address } = req.body;
-  //console.log(order, user);
+  const { order, user: token, address, money, img } = req.body;
+  console.log(money);
   const user = await User.findOne({ token: token });
-  //console.log(user);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
   const date = Date.now();
   const userId = user._id;
-  const status = false;
-  const totalItem = order.totalItem;
-  const medicines = order.OrderItemDetails;
-  console.log("Your Address is", address);
+  const status = true;
+  const totalItem = 1;
+  const property = order;
+  const sellMoney = money;
+  const image = img;
 
   const newOrder = new Order({
     userId,
     date,
     status,
     totalItem,
-    medicines,
+    property,
     address,
+    sellMoney,
+    image,
   });
 
   try {
-    const output = await newOrder.save(); // Save the new instance
-    //console.log(output);
-    res.status(201).json(output);
+    await newOrder.save();
+    res
+      .status(201)
+      .json({ message: "Order created successfully", order: newOrder });
   } catch (error) {
-    console.error(error);
-    res.status(400).send(error);
+    console.error("Error saving order:", error);
+    res.status(500).json({ message: "Failed to create order" });
   }
 };
 
 exports.getOrder = async (req, res) => {
   const orderIds = req.body.orderIds;
   try {
-    const medicines = await Medicine.find({ _id: { $in: orderIds } });
-    //console.log(medicines);
-    if (medicines.length > 0) {
-      res.status(200).json(medicines);
+    const property = await Property.find({ _id: { $in: orderIds } });
+
+    if (property.length > 0) {
+      res.status(200).json(property);
     } else {
-      console.log("No medicines found for the given order IDs.");
+      console.log("No properties found for the given order IDs.");
       res
         .status(404)
-        .json({ message: "No medicines found for the given order IDs." });
+        .json({ message: "No properties found for the given order IDs." });
     }
   } catch (error) {
-    console.error("Error fetching medicines:", error);
-    res.status(500).json({ message: "Error fetching medicines." });
+    console.error("Error fetching properties:", error);
+    res.status(500).json({ message: "Error fetching properties." });
   }
 };
 

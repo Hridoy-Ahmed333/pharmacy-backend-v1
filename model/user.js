@@ -6,7 +6,6 @@ const buySchema = new Schema({
   name: String,
   isRated: Boolean,
   rating: Number,
-  total: Number,
   commentId: [String],
   date: Date,
 });
@@ -20,8 +19,6 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   role: { type: String, required: true },
   totalItemBuy: Number,
-  mobileNumber: String,
-  totalBuyMoney: Number,
   image: String,
   password: { type: String, required: true },
   token: String,

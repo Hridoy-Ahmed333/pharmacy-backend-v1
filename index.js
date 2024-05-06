@@ -4,9 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const categoryRouter = require("./routes/category"); // Import the cors package
-const medicineRouter = require("./routes/medicine");
+const propertyRouter = require("./routes/property");
 const searchRouter = require("./routes/search");
-const supplyRouter = require("./routes/supply");
+
 const userRouter = require("./routes/user");
 const authRouter = require("./routes/auth");
 const orderRouter = require("./routes/order");
@@ -18,13 +18,13 @@ const server = express();
 
 const path = require("path");
 const stripe = require("stripe")(
-  "sk_test_51OpvC0A1UboyhyVAiOzJKaf270wU4BZ4yqPIGeMw1h6oj62RgsZlKR6VGt7VAUagtuKznWLxRRcqlWxtGSiB9yYo00RZokXx7l"
+  "sk_test_51PCzy206c1fApDVTkGHp0YdPrIrJQ8vFKjpHO7kqNwPl7KgbO3zBqGN96UGSQu11c728MC6vj9cCIH1W90zcYnVb00HWXwce7O" //Secret key
 );
 // Assuming your images are in the Images directory relative to your script
 
 main().catch((err) => console.log(err));
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/pharmacy");
+  await mongoose.connect("mongodb://127.0.0.1:27017/realstate");
   console.log("Connected with database");
 }
 
@@ -54,9 +54,9 @@ server.use(express.json());
 server.use(morgan("combined"));
 server.use(express.static("public"));
 server.use("/category", categoryRouter.categoryRouter);
-server.use("/medicine", medicineRouter.medicineRouter);
+server.use("/property", propertyRouter.propertyRouter);
 server.use("/search", searchRouter.searchRouter);
-server.use("/supply", supplyRouter.supplyRouter);
+
 server.use("/auth", authRouter.router);
 server.use("/users", auth, userRouter.router);
 server.use("/payment", auth, paymentRouter.paymentRouter);

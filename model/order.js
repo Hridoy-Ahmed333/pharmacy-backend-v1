@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const medicineSchema = new Schema({
+const propertySchema = new Schema({
   id: String,
   inTotal: Number,
   name: String,
@@ -13,7 +13,9 @@ const orderSchema = new Schema({
   status: Boolean,
   address: String,
   totalItem: Number,
-  medicines: [medicineSchema],
+  property: [propertySchema],
+  sellMoney: Number,
+  image: String,
 });
 exports.Order = mongoose.model("Order", orderSchema);
 

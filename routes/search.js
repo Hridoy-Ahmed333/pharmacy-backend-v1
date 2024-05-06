@@ -1,9 +1,9 @@
 const express = require("express");
-const medicineController = require("../controller/medicine");
+const propertyController = require("../controller/property");
 const searchRouter = express.Router();
 
 searchRouter
-  .post("/", medicineController.searchMedicine)
-  .post("/cat", medicineController.searchByCategoryMedicine)
-  .post("/sto", medicineController.searchByStock);
+  .post("/", propertyController.searchProperty)
+  .post("/cat", propertyController.searchByCategoryProperty)
+  .post("/sto", propertyController.searchByStock);
 exports.searchRouter = searchRouter;

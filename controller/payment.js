@@ -1,72 +1,57 @@
 const mongoose = require("mongoose");
-const model = require("../model/medicine");
+const model = require("../model/property");
 const model2 = require("../model/user");
-const Medicine = model.Medicine;
+const Property = model.Property;
 const User = model2.User;
 const stripe = require("stripe")(
-  "sk_test_51OpvC0A1UboyhyVAiOzJKaf270wU4BZ4yqPIGeMw1h6oj62RgsZlKR6VGt7VAUagtuKznWLxRRcqlWxtGSiB9yYo00RZokXx7l"
+  "sk_test_51PCzy206c1fApDVTkGHp0YdPrIrJQ8vFKjpHO7kqNwPl7KgbO3zBqGN96UGSQu11c728MC6vj9cCIH1W90zcYnVb00HWXwce7O" //Secret Key
 );
 
 exports.payment = async (req, res) => {
   const token = req.body.userToken;
   const user = await User.findOne({ token: token });
-  const productid = req.body.items.map((el) => el._id);
-  const idArray = productid.map(
-    (id) => new mongoose.Types.ObjectId(String(id))
-  );
-  const products = await Medicine.find({ _id: { $in: idArray } });
+  const productId = new mongoose.Types.ObjectId(req.body.productId);
+  const product = await Property.findOne({ _id: productId });
+  const proPrice =
+    product.price - (product.price / 100) * product.discountPercentage;
 
-  function findMatchingProduct(products, item) {
-    const matchingProduct = products.find(
-      (product) => product._id.toString() === item._id
-    );
-    if (matchingProduct) {
-      return matchingProduct;
-      // Perform any operations with matchingProduct here
-    } else {
-      return "cannot find";
-    }
+  if (!product) {
+    return res.status(404).json({ error: "Product not found" });
   }
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      line_items: req.body.items.map((item) => {
-        const product = findMatchingProduct(products, item);
-        const amount =
-          product.discountPercentage > 0
-            ? (
-                product.price -
-                (product.price * product.discountPercentage) / 100
-              ).toFixed(2)
-            : product.price.toFixed(2);
-        return {
+      line_items: [
+        {
           price_data: {
             currency: "usd",
             product_data: {
               name: product.name,
             },
-            unit_amount: amount * 100,
+            unit_amount: proPrice * 100,
           },
-          quantity: item.inTotal,
-        };
-      }),
+          quantity: 1,
+        },
+      ],
       success_url: "http://localhost:3000/success",
       cancel_url: "http://localhost:3000/cancel",
     });
-    res.json({ url: session.url, message: "ok" });
-    console.log("Successfull");
+    await res.json({ url: session.url, message: "ok" });
+    console.log("Successful");
   } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.log("Un - Successfull");
+    await res.status(500).json({ error: error.message });
+    console.log(error);
+    console.log("Un-Successful");
   }
 };
 
 exports.updateUser = async (req, res) => {
-  //console.log(req.body);
+  console.log("Hello");
   try {
-    const { medicineId, userToken } = req.body;
+    const { propertyId, userToken } = req.body;
+    console.log("Property Id is: ", propertyId);
 
     // Find the user by token
     const user = await User.findOne({ token: userToken });
@@ -74,25 +59,22 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Fetch medicine details for each medicineId
-    const medicineDetails = await Medicine.find({
-      _id: { $in: medicineId.map((med) => med.id) },
+    const propertyDetails = await Property.find({
+      _id: { $in: propertyId.map((med) => med.id) },
     });
 
     // Prepare the buy history updates
-    const buyHistoryUpdates = medicineDetails.map((med) => {
-      // Find the corresponding medicineId object from the request
-      const medRequest = medicineId.find(
+    const buyHistoryUpdates = propertyDetails.map((med) => {
+      const medRequest = propertyId.find(
         (m) => m.id.toString() === med._id.toString()
       );
       return {
         medId: med._id.toString(),
-        name: med.name, // Assuming the medicine model has a 'name' field
+        name: med.name,
         isRated: false,
         rating: null,
         commentId: [],
         date: new Date(),
-        total: medRequest.total, // Include the total from the request
       };
     });
 
@@ -106,63 +88,5 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
-  }
-};
-
-exports.updateMedicine = async (req, res) => {
-  const medicine = req.body.medicine;
-
-  try {
-    // Process each medicine item
-    for (const med of medicine) {
-      const { id, total } = med;
-
-      // Find the medicine by ID
-      const medicineItem = await Medicine.findById(id);
-
-      // Check if the medicine exists and if the total is valid
-      if (!medicineItem || total <= 0) {
-        return res
-          .status(400)
-          .send({ message: "Invalid medicine ID or total" });
-      }
-
-      // Calculate the new stock and totalSellMoney
-      const newStock = medicineItem.stock - total;
-      const newTotalSellMoney =
-        medicineItem.totalSellMoney +
-        (medicineItem.discountPercentage > 0
-          ? (medicineItem.price -
-              (medicineItem.price * medicineItem.discountPercentage) / 100) *
-            total
-          : medicineItem.price * total);
-
-      // Check if the new stock is negative
-      if (newStock < 0) {
-        return res.status(400).send({ message: "Insufficient stock" });
-      }
-
-      // Update the medicine item
-      const updatedMedicine = await Medicine.findByIdAndUpdate(
-        id,
-        {
-          $inc: {
-            totalItemSold: total,
-            stock: -total, // Subtract the total from the stock
-            totalSellMoney: newTotalSellMoney - medicineItem.totalSellMoney, // Calculate the difference
-          },
-        },
-        { new: true } // Return the updated document
-      );
-
-      // Log the updated medicine item
-      //console.log(updatedMedicine);
-    }
-
-    // Send a success response
-    res.status(200).send({ message: "Medicine updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "Server error" });
   }
 };
